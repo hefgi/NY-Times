@@ -10,7 +10,8 @@ import XCTest
 @testable import NYTimes
 
 class NYTimesTests: XCTestCase {
-    
+    var sessionUnderTest: URLSession!
+
     override func setUp() {
         super.setUp()
         // Put setup code here. This method is called before the invocation of each test method in the class.
@@ -21,16 +22,21 @@ class NYTimesTests: XCTestCase {
         super.tearDown()
     }
     
-    func testExample() {
-        // This is an example of a functional test case.
-        // Use XCTAssert and related functions to verify your tests produce the correct results.
-    }
-    
-    func testPerformanceExample() {
-        // This is an example of a performance test case.
-        self.measure {
-            // Put the code you want to measure the time of here.
+    func testGetMostViewed() {
+        let promise = expectation(description: "Get Most viewed Articles")
+        var responseArticles: [Article]?
+        NYTimesAPI.shared.getMostViewed { result in
+            switch result {
+            case .success(let articles):
+                responseArticles = articles
+                promise.fulfill()
+            case .failure(let error):
+                XCTFail("Error: \(error.localizedDescription)")
+            }
         }
+        
+        waitForExpectations(timeout: 5, handler: nil)
+        
+        XCTAssertNotNil(responseArticles)
     }
-    
 }
